@@ -44,15 +44,6 @@ export default function AboutPage() {
           </div>
         ))}
       </div>
-
-      <div className="bg-stone-900 text-stone-300 rounded-xl p-8 text-center">
-        <h2 className="text-xl font-serif font-bold text-stone-100 mb-2">MCA Academic Project</h2>
-        <p className="text-sm text-stone-400">
-          This Museum Collection Management System is developed as an MCA academic project, demonstrating full-stack
-          development with React, TypeScript, PostgreSQL (Supabase), authentication, role-based access control, and
-          responsive design.
-        </p>
-      </div>
     </div>
   );
 }
