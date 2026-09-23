@@ -14,6 +14,7 @@ const ExhibitionDetailPage = lazy(() => import('@/pages/public/ExhibitionDetailP
 const AboutPage = lazy(() => import('@/pages/public/AboutPage'));
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
+const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage'));
 const FavoritesPage = lazy(() => import('@/pages/public/FavoritesPage'));
 
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -51,6 +52,7 @@ function App() {
               <Route path="/about" element={<ProtectedRoute><PublicLayout><AboutPage /></PublicLayout></ProtectedRoute>} />
               <Route path="/login" element={<PublicLayout><LoginPage /></PublicLayout>} />
               <Route path="/register" element={<PublicLayout><RegisterPage /></PublicLayout>} />
+              <Route path="/reset-password" element={<PublicLayout><ResetPasswordPage /></PublicLayout>} />
               <Route path="/favorites" element={<ProtectedRoute><PublicLayout><FavoritesPage /></PublicLayout></ProtectedRoute>} />
 
               {/* Admin routes */}

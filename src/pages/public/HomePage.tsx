@@ -5,10 +5,15 @@ import { supabase } from '@/lib/supabase';
 import { ArtifactCard } from '@/components/ArtifactCard';
 import { GridSkeleton } from '@/components/ui/Loading';
 import { ErrorState } from '@/components/ui/EmptyState';
+import { Pagination } from '@/components/ui/Pagination';
 import type { ArtifactWithRelations, Category, ExhibitionWithRelations } from '@/types';
+
+const FEATURED_PAGE_SIZE = 8;
 
 export default function HomePage() {
   const [featured, setFeatured] = useState<ArtifactWithRelations[]>([]);
+  const [featuredPage, setFeaturedPage] = useState(1);
+  const [featuredTotal, setFeaturedTotal] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
   const [exhibitions, setExhibitions] = useState<ExhibitionWithRelations[]>([]);
   const [stats, setStats] = useState({ artifacts: 0, periods: 0, artists: 0, exhibitions: 0 });
@@ -18,13 +23,7 @@ export default function HomePage() {
   useEffect(() => {
     async function load() {
       try {
-        const [artRes, catRes, exhRes, periodRes, artistRes, exhCountRes] = await Promise.all([
-          supabase
-            .from('artifacts')
-            .select('*, category:categories(*), artist:artists(*), historical_period:historical_periods(*), current_location:locations(*), artifact_images(*)')
-            .eq('is_public', true)
-            .order('created_at', { ascending: false })
-            .limit(8),
+        const [catRes, exhRes, periodRes, artistRes, exhCountRes] = await Promise.all([
           supabase.from('categories').select('*').limit(8),
           supabase
             .from('exhibitions')
@@ -36,11 +35,10 @@ export default function HomePage() {
           supabase.from('exhibitions').select('*', { count: 'exact', head: true }).eq('status', 'active'),
         ]);
 
-        setFeatured(artRes.data ?? []);
         setCategories(catRes.data ?? []);
         setExhibitions(exhRes.data ?? []);
         setStats({
-          artifacts: artRes.count ?? 0,
+          artifacts: 0,
           periods: periodRes.count ?? 0,
           artists: artistRes.count ?? 0,
           exhibitions: exhCountRes.count ?? 0,
@@ -53,6 +51,31 @@ export default function HomePage() {
     }
     load();
   }, []);
+
+  useEffect(() => {
+    async function loadFeatured() {
+      setLoading(true);
+      setError(false);
+      const { data, count, error: fetchError } = await supabase
+        .from('artifacts')
+        .select('*, category:categories(*), artist:artists(*), historical_period:historical_periods(*), current_location:locations(*), artifact_images(*)', { count: 'exact' })
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .range((featuredPage - 1) * FEATURED_PAGE_SIZE, featuredPage * FEATURED_PAGE_SIZE - 1);
+
+      if (fetchError) {
+        setError(true);
+      } else {
+        setFeatured(data ?? []);
+        setFeaturedTotal(count ?? 0);
+        setStats((prev) => ({ ...prev, artifacts: count ?? 0 }));
+      }
+      setLoading(false);
+    }
+    loadFeatured();
+  }, [featuredPage]);
+
+  const featuredTotalPages = Math.ceil(featuredTotal / FEATURED_PAGE_SIZE);
 
   return (
     <div>
@@ -124,11 +147,20 @@ export default function HomePage() {
         ) : error ? (
           <ErrorState message="Failed to load featured artifacts. Please try again." />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {featured.map((a) => (
-              <ArtifactCard key={a.id} artifact={a} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {featured.map((a) => (
+                <ArtifactCard key={a.id} artifact={a} />
+              ))}
+            </div>
+            <Pagination
+              page={featuredPage}
+              totalPages={featuredTotalPages}
+              onPageChange={setFeaturedPage}
+              totalItems={featuredTotal}
+              pageSize={FEATURED_PAGE_SIZE}
+            />
+          </>
         )}
       </section>
 
