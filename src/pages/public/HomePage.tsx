@@ -81,13 +81,6 @@ export default function HomePage() {
     <div>
       {/* Hero */}
       <section className="relative bg-stone-900 text-stone-50 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <img
-            src="https://images.pexels.com/photos/19781281/pexels-photo-19781281.jpeg?auto=compress&cs=tinysrgb&w=1920"
-            alt="Museum interior"
-            className="w-full h-full object-cover"
-          />
-        </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
           <div className="max-w-2xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight mb-6">
